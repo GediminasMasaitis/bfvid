@@ -16,7 +16,7 @@ public:
 
         box(output_window, 0, 0);
 
-        wprintw(content_window, "Output:\n");
+        mvwprintw(output_window, 0, 10, "[Output]");
 
         wrefresh(output_window);
     }

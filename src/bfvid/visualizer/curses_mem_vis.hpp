@@ -14,7 +14,7 @@ public:
     int width;
     int height;
 
-    void init(WINDOW* parent, int y, int x, int rows)
+    void init(WINDOW* parent, const int y, const int x, const int rows)
     {
         height = rows + 4;
         width = 82;
@@ -24,15 +24,15 @@ public:
         // tlh = top legend for hex
         // tla = top legend for ascii
 
-        auto sl_height = rows;
-        auto sl_width = 5;
+        const auto sl_height = rows;
+        const auto sl_width = 5;
 
-        auto tlh_height = 2;
-        auto tlh_width = 48;
+        const auto tlh_height = 2;
+        const auto tlh_width = 48;
 
-        auto ascii_width = 17;
-        auto tla_x = sl_width + tlh_width + 10;
-        auto mem_ascii_y = tlh_height + 1;
+        const auto ascii_width = 17;
+        const auto tla_x = sl_width + tlh_width + 10;
+        const auto mem_ascii_y = tlh_height + 1;
 
         memory_window = derwin(parent, height, width, y, x);
         side_legend_window = derwin(memory_window, sl_height, sl_width, 3, 2);
@@ -69,6 +69,9 @@ public:
             }
         }
         wprintw(top_legend_window, " ");
+
+        mvwprintw(memory_window, 0, 10, "[Memory]");
+
         wrefresh(memory_window);
     }
 

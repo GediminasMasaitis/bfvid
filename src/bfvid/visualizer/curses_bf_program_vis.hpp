@@ -28,6 +28,8 @@ public:
 
         mvwprintw(info_window, 0, 0, executed_str.c_str());
 
+        mvwprintw(program_window, 0, 10, "[Program]");
+
         wrefresh(program_window);
     }
 
