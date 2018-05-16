@@ -7,17 +7,16 @@ class curses_bf_program_vis
     WINDOW* info_window;
     
 public:
-    void init(int y, int x)
-    {
-        auto height = 36;
-        auto width = 67;
+    const int height = 36;
+    const int width = 36;
 
+    void init(WINDOW* parent, int y, int x)
+    {
         auto code_height = 24;
         auto info_y = code_height + 1;
         auto info_height = 10;
 
-
-        program_window = newwin(height, width, y, x);
+        program_window = derwin(parent, height, width, y, x);
         code_window = derwin(program_window, code_height, width - 2, 1, 1);
         info_window = derwin(program_window, info_height, width - 2, info_y, 1);
 
@@ -30,7 +29,7 @@ public:
         wrefresh(program_window);
     }
 
-    void set_program(std::string program, int instr_ptr)
+    void set_program(const std::string& program, const int instr_ptr) const
     {
         wmove(code_window, 0, 0);
         for(auto i = 0; i < program.size(); ++i)
@@ -39,7 +38,7 @@ public:
             {
                 wattron(code_window, COLOR_PAIR(1));
             }
-            auto ch = program[i];
+            const auto ch = program[i];
             wprintw(code_window, "%c", ch);
             if (i == instr_ptr)
             {
@@ -58,7 +57,7 @@ public:
         wrefresh(code_window);
     }
 
-    void set_executed(int count)
+    void set_executed(const int count) const
     {
         mvwprintw(info_window, 0, 23, "%i", count);
         wrefresh(info_window);

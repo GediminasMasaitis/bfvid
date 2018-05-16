@@ -175,7 +175,7 @@
     <ClInclude Include="stdafx.hpp" />
     <ClInclude Include="targetver.hpp" />
     <ClInclude Include="visualizer\curses_bf_program_vis.hpp" />
-    <ClInclude Include="visualizer\curses_hex_vis.hpp" />
+    <ClInclude Include="visualizer\curses_mem_vis.hpp" />
     <ClInclude Include="visualizer\curses_visualizer.hpp" />
     <ClInclude Include="visualizer\curses_output_visualizer.hpp" />
   </ItemGroup>

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "curses_hex_vis.hpp"
+#include "curses_mem_vis.hpp"
 #include "curses_bf_program_vis.hpp"
 #include "curses_output_visualizer.hpp"
 
 class curses_visualizer
 {
 public:
-    curses_hex_vis hex_vis;
+    curses_mem_vis mem_vis;
     curses_bf_program_vis code_vis;
     curses_output_vis output_vis;
 
@@ -22,9 +22,9 @@ public:
 
         printw("BrainF visualizer by Gediminas Masaitis");
 
-        hex_vis.init(2, 0, rows);
-        code_vis.init(2, hex_vis.width + 1);
-        output_vis.init(hex_vis.height +2, 0);
+        mem_vis.init(stdscr, 2, 0, rows);
+        code_vis.init(stdscr, 2, mem_vis.width + 1);
+        output_vis.init(stdscr, mem_vis.height + 2, 0);
     }
 
     ~curses_visualizer()
