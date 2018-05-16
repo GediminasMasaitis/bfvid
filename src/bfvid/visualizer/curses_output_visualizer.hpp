@@ -1,6 +1,4 @@
 #pragma once
-#include <curses/curses.h>
-#include <string>
 
 class curses_output_vis
 {

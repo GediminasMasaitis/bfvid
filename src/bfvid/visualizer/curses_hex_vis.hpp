@@ -1,6 +1,4 @@
 #pragma once
-#include <curses/curses.h>
-#include <array>
 
 class curses_hex_vis
 {

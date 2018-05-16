@@ -1,5 +1,4 @@
 #pragma once
-#include <curses/curses.h>
 
 class curses_bf_program_vis
 {

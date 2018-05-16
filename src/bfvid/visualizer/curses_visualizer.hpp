@@ -1,6 +1,5 @@
 #pragma once
 
-#include <curses/curses.h>
 #include "curses_hex_vis.hpp"
 #include "curses_bf_program_vis.hpp"
 #include "curses_output_visualizer.hpp"

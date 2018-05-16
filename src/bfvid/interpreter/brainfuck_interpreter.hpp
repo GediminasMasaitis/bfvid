@@ -1,12 +1,5 @@
 #pragma once
 
-#include <istream>
-#include <ostream>
-#include <stack>
-#include <array>
-#include <unordered_map> 
-#include <functional>
-
 //template<typename TMemoryContainer = std::array<int8_t, 256>>
 template<typename TData = int8_t, size_t VMemSize = 256>
 class brainfuck_interpreter
