@@ -2,19 +2,21 @@
 
 class curses_bf_program_vis
 {
-    WINDOW* program_window;
-    WINDOW* code_window;
-    WINDOW* info_window;
-    
+    WINDOW* program_window = nullptr;
+    WINDOW* code_window = nullptr;
+    WINDOW* info_window = nullptr;
+
+    const std::string executed_str = "Executed instructions: ";
+
 public:
     const int height = 36;
-    const int width = 36;
+    const int width = 67;
 
-    void init(WINDOW* parent, int y, int x)
+    void init(WINDOW* parent, const int y, const int x)
     {
-        auto code_height = 24;
-        auto info_y = code_height + 1;
-        auto info_height = 10;
+        const auto code_height = 24;
+        const auto info_y = code_height + 1;
+        const auto info_height = 10;
 
         program_window = derwin(parent, height, width, y, x);
         code_window = derwin(program_window, code_height, width - 2, 1, 1);
@@ -24,7 +26,7 @@ public:
         //box(code_window, 0, 0);
         //box(info_window, 0, 0);
 
-        mvwprintw(info_window, 0, 0, "Executed instructions: 0");
+        mvwprintw(info_window, 0, 0, executed_str.c_str());
 
         wrefresh(program_window);
     }
@@ -59,7 +61,7 @@ public:
 
     void set_executed(const int count) const
     {
-        mvwprintw(info_window, 0, 23, "%i", count);
+        mvwprintw(info_window, 0, executed_str.size(), "%i", count);
         wrefresh(info_window);
     }
 };
