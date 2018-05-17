@@ -18,6 +18,9 @@ public:
     std::ostream* const out;
     std::istream* const in;
 
+    int all_steps;
+    int instr_steps;
+
     memory_t memory;
     size_t mem_ptr;
     size_t instr_ptr;
@@ -51,7 +54,9 @@ public:
     explicit brainfuck_interpreter(const std::string& program_str, std::ostream* const out = nullptr, std::istream* const in = nullptr) :
         program(program_str),
         out(out),
-        in(in), 
+        in(in),
+        all_steps(0),
+        instr_steps(0),
         memory{}, 
         mem_ptr(0),
         instr_ptr(0),
@@ -121,9 +126,15 @@ public:
             break;
         }
 
-        if(executed && step_callback)
+        all_steps++;
+
+        if(executed)
         {
-            step_callback(*this, instruction, in_ch, out_ch);
+            instr_steps++;
+            if (step_callback)
+            {
+                step_callback(*this, instruction, in_ch, out_ch);
+            }
         }
 
         return true;
