@@ -20,7 +20,7 @@ public:
 
         auto rows = 32;
 
-        printw("BrainF visualizer by Gediminas Masaitis");
+        printw("bfvid by Gediminas Masaitis");
 
         mem_vis.init(stdscr, 2, 0, rows);
         code_vis.init(stdscr, 2, mem_vis.width + 1);
@@ -36,6 +36,7 @@ public:
         {
             output_vis.print_ch(out_ch);
         }
+        mem_vis.highlight_memory_cell(0);
     }
 
     ~curses_visualizer()

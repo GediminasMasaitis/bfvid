@@ -1,5 +1,11 @@
 #pragma once
 
+struct point
+{
+    int y = 0;
+    int x = 0;
+};
+
 class curses_mem_vis
 {
     WINDOW* memory_window;
@@ -9,6 +15,9 @@ class curses_mem_vis
     WINDOW* ascii_legend_window;
     WINDOW* mem_hex_window;
     WINDOW* mem_ascii_window;
+
+    int highlighted_memory;
+    size_t current_mem_ptr;
 
 public:
     int width;
@@ -75,8 +84,68 @@ public:
         wrefresh(memory_window);
     }
 
-    void draw_memory(const int8_t* const data, const size_t length, const size_t mem_ptr) const
+    point get_hex_pt(const int mem_ptr)
     {
+        point pt;
+        pt.y = mem_ptr / 16;
+        pt.x = (mem_ptr % 16) * 3;
+        if (mem_ptr > 7)
+        {
+            ++pt.x;
+        }
+        return pt;
+    }
+
+    point get_ascii_pt(const int mem_ptr)
+    {
+        point pt;
+        pt.y = mem_ptr / 8;
+        pt.x = mem_ptr % 8;
+        if (mem_ptr > 7)
+        {
+            ++pt.x;
+        }
+        return pt;
+    }
+
+    int get_color(const int mem_ptr)
+    {
+        return current_mem_ptr == mem_ptr ? 1 : 0;
+    }
+
+    void remove_memory_highlight()
+    {
+        if(highlighted_memory < 0)
+        {
+            return;
+        }
+        set_attr(highlighted_memory, A_NORMAL);
+        highlighted_memory = -1;
+    }
+
+    void highlight_memory_cell(const int mem_ptr)
+    {
+        remove_memory_highlight();
+        if (mem_ptr >= 0)
+        {
+            set_attr(mem_ptr, A_STANDOUT);
+        }
+        wrefresh(mem_hex_window);
+        wrefresh(mem_ascii_window);
+    }
+
+    void set_attr(const int mem_ptr, const attr_t attr)
+    {
+        const auto hex_pt = get_hex_pt(mem_ptr);
+        const auto ascii_pt = get_ascii_pt(mem_ptr);
+        const auto color = get_color(mem_ptr);
+        mvwchgat(mem_hex_window, hex_pt.y, hex_pt.x, 2, attr, color, nullptr);
+        mvwchgat(mem_ascii_window, ascii_pt.y, ascii_pt.x, 1, attr, color, nullptr);
+    }
+
+    void draw_memory(const int8_t* const data, const size_t length, const size_t mem_ptr)
+    {
+        current_mem_ptr = mem_ptr;
         wmove(mem_hex_window, 0, 0);
         wmove(mem_ascii_window, 0, 0);
         for (auto i = 0; i < length; ++i)
@@ -88,8 +157,8 @@ public:
             }
             if (i == mem_ptr)
             {
-                wattron(mem_hex_window, COLOR_PAIR(1));
-                wattron(mem_ascii_window, COLOR_PAIR(1));
+                wattrset(mem_hex_window, COLOR_PAIR(1));
+                wattrset(mem_ascii_window, COLOR_PAIR(1));
             }
             auto ch = static_cast<uint8_t>(data[i]);
             wprintw(mem_hex_window, "%02X", ch);
@@ -100,8 +169,8 @@ public:
             wprintw(mem_ascii_window, "%c", ch);
             if (i == mem_ptr)
             {
-                wattroff(mem_hex_window, COLOR_PAIR(1));
-                wattroff(mem_ascii_window, COLOR_PAIR(1));
+                wattrset(mem_hex_window, COLOR_PAIR(0));
+                wattrset(mem_ascii_window, COLOR_PAIR(0));
             }
             wprintw(mem_hex_window, " ");
         }
