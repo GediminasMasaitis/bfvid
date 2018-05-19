@@ -34,14 +34,21 @@ public:
             auto active = vis.get_active_window();
             switch (ch)
             {
+
             case KEY_F(5):
                 bf.run();
                 break;
+
             case KEY_F(10):
-                bf.step();
+                bf.step_over();
                 break;
+
             case KEY_F(11):
                 bf.step();
+                break;
+
+            case KEY_F(12):
+                bf.step_out();
                 break;
 
             case 'm':

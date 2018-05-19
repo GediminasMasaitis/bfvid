@@ -54,7 +54,39 @@ public:
         breakpoints_instr.erase(ptr);
     }
 
-    void run()
+    bool step_over()
+    {
+        if(this->is_end())
+        {
+            return false;
+        }
+        auto instr = this->get_next_instruction();
+        if(instr != '[')
+        {
+            return this->step();
+        }
+        breakpoint_loop_set = true;
+        breakpoint_loop = this->get_loop_end_for(this->instr_ptr + 1);
+        run();
+        return !this->is_end();
+    }
+
+    bool step_out()
+    {
+        if (this->is_end())
+        {
+            return false;
+        }
+        if(!this->loop_stack.empty())
+        {
+            auto loop_start_idx = this->loop_stack.top();
+            breakpoint_loop_set = true;
+            breakpoint_loop = this->get_loop_end_for(loop_start_idx);
+        }
+        return run();
+    }
+
+    bool run()
     {
         while (this->step())
         {
@@ -69,5 +101,7 @@ public:
                 break;
             }
         }
+        breakpoint_loop_set = false;
+        return !this->is_end();
     }
 };

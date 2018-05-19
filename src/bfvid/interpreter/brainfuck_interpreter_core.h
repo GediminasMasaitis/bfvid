@@ -12,6 +12,11 @@ public:
 
 protected:
     std::unordered_map<size_t, size_t> cycle_ends;
+
+    size_t get_loop_end_for(const size_t ptr)
+    {
+        return cycle_ends.find(ptr)->second;
+    }
 public:
 
     const std::string program;
@@ -65,13 +70,24 @@ public:
         scan_cycle_ends();
     }
 
+    bool is_end() const
+    {
+        return instr_ptr >= program.length();
+    }
+
+    char get_next_instruction() const
+    {
+        return program[instr_ptr];
+    }
+
     bool step()
     {
-        if (instr_ptr >= program.length())
+        if (is_end())
         {
             return false;
         }
-        const auto instruction = program[instr_ptr++];
+        const auto instruction = get_next_instruction();
+        ++instr_ptr;
         auto executed = true;
         char in_ch = '\0';
         char out_ch = '\0';
@@ -111,7 +127,7 @@ public:
             }
             else
             {
-                instr_ptr = cycle_ends.find(instr_ptr)->second;
+                instr_ptr = get_loop_end_for(instr_ptr);
             }
             break;
         case ']':
