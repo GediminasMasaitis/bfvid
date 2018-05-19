@@ -13,6 +13,23 @@ class curses_visualizer
 
     curses_vis_window active_window;
 
+private:
+    void toggle_active_core(curses_vis_window window)
+    {
+        switch (window)
+        {
+        case curses_vis_window::none: break;
+        case curses_vis_window::memory:
+            mem_vis.toggle_active();
+            break;
+        case curses_vis_window::program:
+            prog_vis.toggle_active();
+            break;
+        case curses_vis_window::output: break;
+        default:;
+        }
+    }
+
 public:
     void init()
     {
@@ -68,23 +85,16 @@ public:
 
     void toggle_active(curses_vis_window window)
     {
-        if(window != active_window)
+        if(window == active_window)
         {
-            toggle_active(active_window);
+            active_window = curses_vis_window::none;
         }
-        switch (window)
+        else
         {
-        case curses_vis_window::none: break;
-        case curses_vis_window::memory:
-            mem_vis.toggle_active();
-            break;
-        case curses_vis_window::program:
-            prog_vis.toggle_active();
-            break;
-        case curses_vis_window::output: break;
-        default: ;
+            toggle_active_core(active_window);
+            active_window = window;
         }
-        active_window = window;
+        toggle_active_core(window);
     }
 
     ~curses_visualizer()
