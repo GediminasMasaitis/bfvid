@@ -18,7 +18,7 @@ public:
     {
         vis.init();
         vis.visualize(bf.program, bf.memory.data(), bf.mem_size);
-        bf.step_callback = [this](brainfuck_interpreter<>& bf, char instruction, char in_ch, char out_ch)
+        bf.step_callback = [this](brainfuck_interpreter_core<>& bf, char instruction, char in_ch, char out_ch)
         {
             vis.visualize(bf.program, bf.memory.data(), bf.mem_size, bf.mem_ptr, bf.instr_ptr, bf.instr_steps, in_ch, out_ch);
             //std::this_thread::sleep_for(std::chrono::milliseconds(10));
