@@ -9,7 +9,7 @@ class curses_mem_vis : public window_base
     WINDOW* mem_hex_window;
     WINDOW* mem_ascii_window;
 
-    int highlighted_memory;
+    size_t highlight;
     size_t current_mem_ptr;
     size_t current_mem_size;
 
@@ -20,6 +20,7 @@ public:
     curses_mem_vis()
     {
         title = "[Memory]";
+        highlight = 0;
     }
 
     void init(WINDOW* parent, const int y, const int x, const int rows)
@@ -113,7 +114,7 @@ public:
 
     void remove_memory_highlight()
     {
-        set_attr(highlighted_memory, A_NORMAL);
+        set_attr(highlight, A_NORMAL);
     }
 
     void highlight_memory_cell(const int mem_ptr)
@@ -127,7 +128,7 @@ public:
             return;
         }
         remove_memory_highlight();
-        highlighted_memory = mem_ptr;
+        highlight = mem_ptr;
         set_attr(mem_ptr, A_STANDOUT);
         wrefresh(mem_hex_window);
         wrefresh(mem_ascii_window);
@@ -147,7 +148,7 @@ public:
         window_base::set_active(a);
         if(a)
         {
-            highlight_memory_cell(highlighted_memory);
+            highlight_memory_cell(highlight);
         }
         else
         {
@@ -157,24 +158,24 @@ public:
         wrefresh(mem_ascii_window);
     }
 
-    void right()
-    {
-        highlight_memory_cell(highlighted_memory + 1);
-    }
-
     void left()
     {
-        highlight_memory_cell(highlighted_memory - 1);
+        highlight_memory_cell(highlight - 1);
+    }
+
+    void right()
+    {
+        highlight_memory_cell(highlight + 1);
     }
 
     void up()
     {
-        highlight_memory_cell(highlighted_memory - 16);
+        highlight_memory_cell(highlight - 16);
     }
 
     void down()
     {
-        highlight_memory_cell(highlighted_memory + 16);
+        highlight_memory_cell(highlight + 16);
     }
 
     void draw_memory(const int8_t* const data, const size_t length, const size_t mem_ptr)

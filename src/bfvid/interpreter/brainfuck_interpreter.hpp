@@ -21,6 +21,18 @@ public:
         
     }
 
+    void toggle_instr_break(const size_t ptr)
+    {
+        if(is_instr_break_set(ptr))
+        {
+            remove_instr_break(ptr);
+        }
+        else
+        {
+            set_instr_break(ptr);
+        }
+    }
+
     void set_instr_break(const size_t ptr)
     {
         auto br = breakpoint_instr(breakpoint_instr_type::execute);
@@ -30,6 +42,16 @@ public:
     void set_instr_break(const size_t ptr, const breakpoint_instr& br)
     {
         breakpoints_instr[ptr] = br;
+    }
+
+    bool is_instr_break_set(const size_t ptr)
+    {
+        return breakpoints_instr.find(ptr) != breakpoints_instr.end();
+    }
+
+    void remove_instr_break(const size_t ptr)
+    {
+        breakpoints_instr.erase(ptr);
     }
 
     void run()

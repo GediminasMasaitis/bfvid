@@ -13,7 +13,6 @@ class curses_visualizer
 
     curses_vis_window active_window;
 
-private:
     void toggle_active_core(curses_vis_window window)
     {
         switch (window)
@@ -53,6 +52,21 @@ public:
         active_window = curses_vis_window::none;
     }
 
+    curses_vis_window get_active_window() const
+    {
+        return active_window;
+    }
+
+    size_t get_active_highlight() const
+    {
+        switch (active_window)
+        {
+        case curses_vis_window::program:
+            return prog_vis.get_highlight();
+        }
+        return 0;
+    }
+
     void visualize(const std::string& program, const int8_t* memory, const size_t mem_len, const breakpoint_mem_map& brs_mem, const breakpoint_instr_map& brs_instr, const size_t mem_ptr = 0, const size_t instr_ptr = 0, const int steps = 0, const char in_ch = 0, const char out_ch = 0)
     {
         mem_vis.draw_memory(memory, mem_len, mem_ptr);
@@ -64,24 +78,39 @@ public:
         }
     }
 
+    void visualize(const brainfuck_interpreter<>& bf, const char in_ch = 0, const char out_ch = 0)
+    {
+        mem_vis.draw_memory(bf.memory.data(), bf.mem_size, bf.mem_ptr);
+        prog_vis.set_program(bf.program, bf.instr_ptr, bf.breakpoints_instr);
+        prog_vis.set_executed(bf.instr_steps);
+        if (out_ch != 0)
+        {
+            output_vis.print_ch(out_ch);
+        }
+    }
+
     void left()
     {
         mem_vis.left();
+        prog_vis.left();
     }
 
     void right()
     {
         mem_vis.right();
+        prog_vis.right();
     }
 
     void up()
     {
         mem_vis.up();
+        prog_vis.up();
     }
 
     void down()
     {
         mem_vis.down();
+        prog_vis.down();
     }
 
     void toggle_active(curses_vis_window window)

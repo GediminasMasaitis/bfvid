@@ -7,6 +7,10 @@ class curses_bf_program_vis : public window_base
     WINDOW* info_window = nullptr;
 
     const std::string executed_str = "Executed instructions: ";
+    size_t highlight;
+    size_t current_instr_ptr;
+    size_t current_program_size;
+    breakpoint_instr_map current_map;
 
 public:
     const int height = 36;
@@ -16,6 +20,7 @@ public:
     curses_bf_program_vis()
     {
         title = "[Program]";
+        highlight = 0;
     }
 
     void init(WINDOW* parent, const int y, const int x)
@@ -36,6 +41,11 @@ public:
         draw_border();
     }
 
+    size_t get_highlight() const
+    {
+        return highlight;
+    }
+
     point get_pt(const int instr_ptr) const
     {
         point pt;
@@ -44,8 +54,82 @@ public:
         return pt;
     }
 
-    void set_program(const std::string& program, const int instr_ptr, const breakpoint_instr_map& breakpoints) const
+    void remove_highlight()
     {
+        set_attr(highlight, highlight == current_instr_ptr ? A_BOLD : A_NORMAL);
+    }
+
+    void highlight_instr(const int instr_ptr)
+    {
+        if (!active)
+        {
+            return;
+        }
+        if (instr_ptr < 0 || instr_ptr > current_program_size)
+        {
+            return;
+        }
+        remove_highlight();
+        highlight = instr_ptr;
+        set_attr(instr_ptr, A_STANDOUT);
+        wrefresh(code_window);
+    }
+
+    int get_color(const int instr_ptr)
+    {
+        if(current_map.find(instr_ptr) != current_map.end())
+        {
+            return  3;
+        }
+        return current_instr_ptr == instr_ptr ? 1 : 0;
+    }
+
+    void set_attr(const int instr_ptr, const attr_t attr)
+    {
+        const auto pt = get_pt(instr_ptr);
+        const auto color = get_color(instr_ptr);
+        mvwchgat(code_window, pt.y, pt.x, 1, attr, color, nullptr);
+    }
+
+    void left()
+    {
+        highlight_instr(highlight - 1);
+    }
+
+    void right()
+    {
+        highlight_instr(highlight + 1);
+    }
+
+    void up()
+    {
+        highlight_instr(highlight - code_width);
+    }
+
+    void down()
+    {
+        highlight_instr(highlight + code_width);
+    }
+
+    void set_active(bool a) override
+    {
+        window_base::set_active(a);
+        if (a)
+        {
+            highlight_instr(highlight);
+        }
+        else
+        {
+            remove_highlight();
+        }
+        wrefresh(code_window);
+    }
+
+    void set_program(const std::string& program, const int instr_ptr, const breakpoint_instr_map& breakpoints)
+    {
+        current_map = breakpoints;
+        current_program_size = program.size();
+        current_instr_ptr = instr_ptr;
         wmove(code_window, 0, 0);
         for(auto i = 0; i < program.size(); ++i)
         {
@@ -72,7 +156,7 @@ public:
             const auto attr = br_it.first == instr_ptr ? A_BOLD : A_NORMAL;
             mvwchgat(code_window, pt.y, pt.x, 1, attr, 3, nullptr);
         }
-
+        highlight_instr(highlight);
         wrefresh(code_window);
     }
 

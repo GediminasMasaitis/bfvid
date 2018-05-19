@@ -31,6 +31,7 @@ public:
         while(true)
         {
             const auto ch = wgetch(stdscr);
+            auto active = vis.get_active_window();
             switch (ch)
             {
             case KEY_F(5):
@@ -52,6 +53,20 @@ public:
             case 'P':
                 vis.toggle_active(curses_vis_window::program);
                 break;
+
+            case 'b':
+            case 'B':
+            {
+                const auto br_pos = vis.get_active_highlight();
+                switch (active)
+                {
+                case curses_vis_window::program:
+                    bf.toggle_instr_break(br_pos);
+                    break;
+                }
+                vis.visualize(bf);
+                break;
+            }
 
             case KEY_LEFT:
                 vis.left();
