@@ -1,15 +1,13 @@
 #pragma once
 #include "../interpreter/breakpoints.h"
 
-class curses_bf_program_vis : public window_base
+class curses_bf_program_vis : public highlight_window
 {
     WINDOW* code_window = nullptr;
     WINDOW* info_window = nullptr;
 
     const std::string executed_str = "Executed instructions: ";
-    size_t highlight;
     size_t current_instr_ptr;
-    size_t current_program_size;
     breakpoint_instr_map current_map;
 
 public:
@@ -20,7 +18,7 @@ public:
     curses_bf_program_vis()
     {
         title = "[Program]";
-        highlight = 0;
+        highlight_width = code_width;
     }
 
     void init(WINDOW* parent, const int y, const int x)
@@ -41,11 +39,6 @@ public:
         draw_border();
     }
 
-    size_t get_highlight() const
-    {
-        return highlight;
-    }
-
     point get_pt(const int instr_ptr) const
     {
         point pt;
@@ -54,25 +47,19 @@ public:
         return pt;
     }
 
-    void remove_highlight()
+    void remove_highlight() override
     {
         set_attr(highlight, highlight == current_instr_ptr ? A_BOLD : A_NORMAL);
     }
 
-    void highlight_instr(const int instr_ptr)
+    void refresh_highlight_windows() override
     {
-        if (!active)
-        {
-            return;
-        }
-        if (instr_ptr < 0 || instr_ptr > current_program_size)
-        {
-            return;
-        }
-        remove_highlight();
-        highlight = instr_ptr;
-        set_attr(instr_ptr, A_STANDOUT);
         wrefresh(code_window);
+    }
+
+    void set_highlight_core(const int instr_ptr) override
+    {
+        set_attr(instr_ptr, A_STANDOUT);
     }
 
     int get_color(const int instr_ptr)
@@ -91,44 +78,10 @@ public:
         mvwchgat(code_window, pt.y, pt.x, 1, attr, color, nullptr);
     }
 
-    void left()
-    {
-        highlight_instr(highlight - 1);
-    }
-
-    void right()
-    {
-        highlight_instr(highlight + 1);
-    }
-
-    void up()
-    {
-        highlight_instr(highlight - code_width);
-    }
-
-    void down()
-    {
-        highlight_instr(highlight + code_width);
-    }
-
-    void set_active(bool a) override
-    {
-        window_base::set_active(a);
-        if (a)
-        {
-            highlight_instr(highlight);
-        }
-        else
-        {
-            remove_highlight();
-        }
-        wrefresh(code_window);
-    }
-
     void set_program(const std::string& program, const int instr_ptr, const breakpoint_instr_map& breakpoints)
     {
         current_map = breakpoints;
-        current_program_size = program.size();
+        highlight_limit = program.size();
         current_instr_ptr = instr_ptr;
         wmove(code_window, 0, 0);
         for(auto i = 0; i < program.size(); ++i)
@@ -156,7 +109,7 @@ public:
             const auto attr = br_it.first == instr_ptr ? A_BOLD : A_NORMAL;
             mvwchgat(code_window, pt.y, pt.x, 1, attr, 3, nullptr);
         }
-        highlight_instr(highlight);
+        set_highlight(highlight);
         wrefresh(code_window);
     }
 

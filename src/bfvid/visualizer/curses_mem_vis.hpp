@@ -1,7 +1,7 @@
 #pragma once
 #include "window_base.hpp"
 
-class curses_mem_vis : public window_base
+class curses_mem_vis : public highlight_window
 {
     WINDOW* side_legend_window;
     WINDOW* top_legend_window;
@@ -9,9 +9,7 @@ class curses_mem_vis : public window_base
     WINDOW* mem_hex_window;
     WINDOW* mem_ascii_window;
 
-    size_t highlight;
     size_t current_mem_ptr;
-    size_t current_mem_size;
 
 public:
     int width;
@@ -20,7 +18,7 @@ public:
     curses_mem_vis()
     {
         title = "[Memory]";
-        highlight = 0;
+        highlight_width = 16;
     }
 
     void init(WINDOW* parent, const int y, const int x, const int rows)
@@ -112,24 +110,18 @@ public:
         return current_mem_ptr == mem_ptr ? 1 : 0;
     }
 
-    void remove_memory_highlight()
+    void remove_highlight() override
     {
         set_attr(highlight, A_NORMAL);
     }
 
-    void highlight_memory_cell(const int mem_ptr)
+    void set_highlight_core(const int ptr) override
     {
-        if(!active)
-        {
-            return;
-        }
-        if(mem_ptr < 0 || mem_ptr > current_mem_size)
-        {
-            return;
-        }
-        remove_memory_highlight();
-        highlight = mem_ptr;
-        set_attr(mem_ptr, A_STANDOUT);
+        set_attr(ptr, A_STANDOUT);
+    }
+
+    void refresh_highlight_windows() override
+    {
         wrefresh(mem_hex_window);
         wrefresh(mem_ascii_window);
     }
@@ -143,44 +135,9 @@ public:
         mvwchgat(mem_ascii_window, ascii_pt.y, ascii_pt.x, 1, attr, color, nullptr);
     }
 
-    void set_active(bool a) override
-    {
-        window_base::set_active(a);
-        if(a)
-        {
-            highlight_memory_cell(highlight);
-        }
-        else
-        {
-            remove_memory_highlight();
-        }
-        wrefresh(mem_hex_window);
-        wrefresh(mem_ascii_window);
-    }
-
-    void left()
-    {
-        highlight_memory_cell(highlight - 1);
-    }
-
-    void right()
-    {
-        highlight_memory_cell(highlight + 1);
-    }
-
-    void up()
-    {
-        highlight_memory_cell(highlight - 16);
-    }
-
-    void down()
-    {
-        highlight_memory_cell(highlight + 16);
-    }
-
     void draw_memory(const int8_t* const data, const size_t length, const size_t mem_ptr)
     {
-        current_mem_size = length;
+        highlight_limit = length;
         current_mem_ptr = mem_ptr;
         wmove(mem_hex_window, 0, 0);
         wmove(mem_ascii_window, 0, 0);
@@ -210,6 +167,7 @@ public:
             }
             wprintw(mem_hex_window, " ");
         }
+        set_highlight(highlight);
         wrefresh(mem_hex_window);
         wrefresh(mem_ascii_window);
     }
