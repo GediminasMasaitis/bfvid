@@ -18,6 +18,8 @@ class curses_mem_vis
 
     int highlighted_memory;
     size_t current_mem_ptr;
+    size_t current_mem_size;
+    bool active;
 
 public:
     int width;
@@ -27,6 +29,7 @@ public:
     {
         height = rows + 4;
         width = 82;
+        active = false;
         auto cols = 16;
 
         // sl = side legend
@@ -56,7 +59,7 @@ public:
         //box(mem_hex_window, 0, 0);
         //box(mem_ascii_window, 0, 0);
         box(ascii_legend_window, 0, 0);
-        box(memory_window, 0, 0);
+        
 
         for (auto i = 0; i < sl_height; ++i)
         {
@@ -79,8 +82,22 @@ public:
         }
         wprintw(top_legend_window, " ");
 
-        mvwprintw(memory_window, 0, 10, "[Memory]");
+        draw_border();
+    }
 
+    void draw_border()
+    {
+        if(active)
+        {
+            wattrset(memory_window, COLOR_PAIR(2));
+        }
+        box(memory_window, 0, 0);
+        mvwprintw(memory_window, 0, 10, "[Memory]");
+        mvwchgat(memory_window, 0, 11, 1, A_BOLD, 2, nullptr);
+        if (active)
+        {
+            wattrset(memory_window, COLOR_PAIR(0));
+        }
         wrefresh(memory_window);
     }
 
@@ -88,8 +105,9 @@ public:
     {
         point pt;
         pt.y = mem_ptr / 16;
-        pt.x = (mem_ptr % 16) * 3;
-        if (mem_ptr > 7)
+        const auto col = mem_ptr % 16;
+        pt.x = col * 3;
+        if (col > 7)
         {
             ++pt.x;
         }
@@ -99,9 +117,9 @@ public:
     point get_ascii_pt(const int mem_ptr)
     {
         point pt;
-        pt.y = mem_ptr / 8;
-        pt.x = mem_ptr % 8;
-        if (mem_ptr > 7)
+        pt.y = mem_ptr / 16;
+        pt.x = mem_ptr % 16;
+        if (pt.x > 7)
         {
             ++pt.x;
         }
@@ -115,21 +133,22 @@ public:
 
     void remove_memory_highlight()
     {
-        if(highlighted_memory < 0)
-        {
-            return;
-        }
         set_attr(highlighted_memory, A_NORMAL);
-        highlighted_memory = -1;
     }
 
     void highlight_memory_cell(const int mem_ptr)
     {
-        remove_memory_highlight();
-        if (mem_ptr >= 0)
+        if(!active)
         {
-            set_attr(mem_ptr, A_STANDOUT);
+            return;
         }
+        if(mem_ptr < 0 || mem_ptr > current_mem_size)
+        {
+            return;
+        }
+        remove_memory_highlight();
+        highlighted_memory = mem_ptr;
+        set_attr(mem_ptr, A_STANDOUT);
         wrefresh(mem_hex_window);
         wrefresh(mem_ascii_window);
     }
@@ -143,8 +162,48 @@ public:
         mvwchgat(mem_ascii_window, ascii_pt.y, ascii_pt.x, 1, attr, color, nullptr);
     }
 
+    void toggle_active()
+    {
+        set_active(!active);
+    }
+
+    void set_active(bool a)
+    {
+        active = a;
+        if(a)
+        {
+            highlight_memory_cell(highlighted_memory);
+        }
+        else
+        {
+            remove_memory_highlight();
+        }
+        draw_border();
+    }
+
+    void right()
+    {
+        highlight_memory_cell(highlighted_memory + 1);
+    }
+
+    void left()
+    {
+        highlight_memory_cell(highlighted_memory - 1);
+    }
+
+    void up()
+    {
+        highlight_memory_cell(highlighted_memory - 16);
+    }
+
+    void down()
+    {
+        highlight_memory_cell(highlighted_memory + 16);
+    }
+
     void draw_memory(const int8_t* const data, const size_t length, const size_t mem_ptr)
     {
+        current_mem_size = length;
         current_mem_ptr = mem_ptr;
         wmove(mem_hex_window, 0, 0);
         wmove(mem_ascii_window, 0, 0);
