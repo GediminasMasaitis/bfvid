@@ -1,12 +1,6 @@
 #pragma once
 #include "window_base.hpp"
 
-struct point
-{
-    int y = 0;
-    int x = 0;
-};
-
 class curses_mem_vis : public window_base
 {
     WINDOW* side_legend_window;

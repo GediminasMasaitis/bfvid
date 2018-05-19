@@ -1,4 +1,5 @@
 #pragma once
+#include "../interpreter/breakpoints.h"
 
 class curses_bf_program_vis : public window_base
 {
@@ -10,6 +11,7 @@ class curses_bf_program_vis : public window_base
 public:
     const int height = 36;
     const int width = 67;
+    const int code_width = 65;
 
     curses_bf_program_vis()
     {
@@ -23,8 +25,8 @@ public:
         const auto info_height = 10;
 
         main_win = derwin(parent, height, width, y, x);
-        code_window = derwin(main_win, code_height, width - 2, 1, 1);
-        info_window = derwin(main_win, info_height, width - 2, info_y, 1);
+        code_window = derwin(main_win, code_height, code_width, 1, 1);
+        info_window = derwin(main_win, info_height, code_width, info_y, 1);
 
         //box(code_window, 0, 0);
         //box(info_window, 0, 0);
@@ -34,21 +36,21 @@ public:
         draw_border();
     }
 
-    void set_program(const std::string& program, const int instr_ptr) const
+    point get_pt(const int instr_ptr) const
+    {
+        point pt;
+        pt.y = instr_ptr / code_width;
+        pt.x = instr_ptr % code_width;
+        return pt;
+    }
+
+    void set_program(const std::string& program, const int instr_ptr, const breakpoint_instr_map& breakpoints) const
     {
         wmove(code_window, 0, 0);
         for(auto i = 0; i < program.size(); ++i)
         {
-            if (i == instr_ptr)
-            {
-                wattron(code_window, COLOR_PAIR(1));
-            }
             const auto ch = program[i];
             wprintw(code_window, "%c", ch);
-            if (i == instr_ptr)
-            {
-                wattroff(code_window, COLOR_PAIR(1));
-            }
         }
 
         if(instr_ptr == program.size())
@@ -58,7 +60,19 @@ public:
             wattroff(info_window, COLOR_PAIR(1));
             wrefresh(info_window);
         }
-        
+        else
+        {
+            const auto pt = get_pt(instr_ptr);
+            mvwchgat(code_window, pt.y, pt.x, 1, A_BOLD, 1, nullptr);
+        }
+
+        for(const auto br_it : breakpoints)
+        {
+            const auto pt = get_pt(br_it.first);
+            const auto attr = br_it.first == instr_ptr ? A_BOLD : A_NORMAL;
+            mvwchgat(code_window, pt.y, pt.x, 1, attr, 3, nullptr);
+        }
+
         wrefresh(code_window);
     }
 

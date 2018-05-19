@@ -30,3 +30,6 @@ enum class breakpoint_instr_type
 
 using breakpoint_mem = breakpoint<breakpoint_mem_type>;
 using breakpoint_instr = breakpoint<breakpoint_instr_type>;
+
+using breakpoint_mem_map = std::unordered_map<size_t, breakpoint_mem>;
+using breakpoint_instr_map = std::unordered_map<size_t, breakpoint_instr>;

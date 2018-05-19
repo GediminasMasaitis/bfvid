@@ -40,6 +40,7 @@ public:
         noecho();
         init_pair(1, COLOR_YELLOW, COLOR_BLACK);
         init_pair(2, COLOR_GREEN, COLOR_BLACK);
+        init_pair(3, COLOR_RED, COLOR_BLACK);
         keypad(stdscr, true);
 
         auto rows = 32;
@@ -52,10 +53,10 @@ public:
         active_window = curses_vis_window::none;
     }
 
-    void visualize(const std::string& program, const int8_t* memory, const size_t mem_len, const size_t mem_ptr = 0, const size_t instr_ptr = 0, const int steps = 0, const char in_ch = 0, const char out_ch = 0)
+    void visualize(const std::string& program, const int8_t* memory, const size_t mem_len, const breakpoint_mem_map& brs_mem, const breakpoint_instr_map& brs_instr, const size_t mem_ptr = 0, const size_t instr_ptr = 0, const int steps = 0, const char in_ch = 0, const char out_ch = 0)
     {
         mem_vis.draw_memory(memory, mem_len, mem_ptr);
-        prog_vis.set_program(program, instr_ptr);
+        prog_vis.set_program(program, instr_ptr, brs_instr);
         prog_vis.set_executed(steps);
         if (out_ch != 0)
         {

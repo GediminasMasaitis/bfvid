@@ -8,8 +8,8 @@ class brainfuck_interpreter : public brainfuck_interpreter_core<TData, VMemSize>
 {
 public:
 
-    std::unordered_map<size_t, breakpoint_mem> breakpoints_mem;
-    std::unordered_map<size_t, breakpoint_instr> breakpoints_instr;
+    breakpoint_mem_map breakpoints_mem;
+    breakpoint_instr_map breakpoints_instr;
     bool breakpoint_loop_set;
     size_t breakpoint_loop;
 

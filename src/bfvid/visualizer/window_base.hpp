@@ -1,5 +1,11 @@
 #pragma once
 
+struct point
+{
+    int y = 0;
+    int x = 0;
+};
+
 class window_base
 {
 protected:
