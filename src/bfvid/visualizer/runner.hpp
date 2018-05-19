@@ -31,7 +31,7 @@ public:
     {
         while(true)
         {
-            auto ch = wgetch(stdscr);
+            const auto ch = wgetch(stdscr);
             switch (ch)
             {
             case KEY_F(5):
@@ -47,6 +47,11 @@ public:
             case 'm':
             case 'M':
                 vis.toggle_active(curses_vis_window::memory);
+                break;
+
+            case 'p':
+            case 'P':
+                vis.toggle_active(curses_vis_window::program);
                 break;
 
             case KEY_LEFT:

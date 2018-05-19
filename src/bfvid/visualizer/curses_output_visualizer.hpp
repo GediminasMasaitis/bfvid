@@ -1,24 +1,25 @@
 #pragma once
 
-class curses_output_vis
+class curses_output_vis : public window_base
 {
-    WINDOW* output_window;
     WINDOW* content_window;
 
 public:
     const int height = 10;
     const int width = 150;
 
+    curses_output_vis()
+    {
+        title = "[Output]";
+        bold_first_title_letter = false;
+    }
+
     void init(WINDOW* parent, const int y, const int x)
     {
-        output_window = derwin(parent, height, width, y, x);
-        content_window = derwin(output_window, height-2, width-2, 1, 1);
+        main_win = derwin(parent, height, width, y, x);
+        content_window = derwin(main_win, height-2, width-2, 1, 1);
 
-        box(output_window, 0, 0);
-
-        mvwprintw(output_window, 0, 10, "[Output]");
-
-        wrefresh(output_window);
+        draw_border();
     }
 
     void print_ch(const char ch) const

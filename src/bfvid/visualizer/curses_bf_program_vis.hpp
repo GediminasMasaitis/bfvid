@@ -1,8 +1,7 @@
 #pragma once
 
-class curses_bf_program_vis
+class curses_bf_program_vis : public window_base
 {
-    WINDOW* program_window = nullptr;
     WINDOW* code_window = nullptr;
     WINDOW* info_window = nullptr;
 
@@ -12,25 +11,27 @@ public:
     const int height = 36;
     const int width = 67;
 
+    curses_bf_program_vis()
+    {
+        title = "[Program]";
+    }
+
     void init(WINDOW* parent, const int y, const int x)
     {
         const auto code_height = 24;
         const auto info_y = code_height + 1;
         const auto info_height = 10;
 
-        program_window = derwin(parent, height, width, y, x);
-        code_window = derwin(program_window, code_height, width - 2, 1, 1);
-        info_window = derwin(program_window, info_height, width - 2, info_y, 1);
+        main_win = derwin(parent, height, width, y, x);
+        code_window = derwin(main_win, code_height, width - 2, 1, 1);
+        info_window = derwin(main_win, info_height, width - 2, info_y, 1);
 
-        box(program_window, 0, 0);
         //box(code_window, 0, 0);
         //box(info_window, 0, 0);
 
         mvwprintw(info_window, 0, 0, executed_str.c_str());
 
-        mvwprintw(program_window, 0, 10, "[Program]");
-
-        wrefresh(program_window);
+        draw_border();
     }
 
     void set_program(const std::string& program, const int instr_ptr) const

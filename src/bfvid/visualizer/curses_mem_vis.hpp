@@ -1,4 +1,5 @@
 #pragma once
+#include "window_base.hpp"
 
 struct point
 {
@@ -6,10 +7,8 @@ struct point
     int x = 0;
 };
 
-class curses_mem_vis
+class curses_mem_vis : public window_base
 {
-    WINDOW* memory_window;
-
     WINDOW* side_legend_window;
     WINDOW* top_legend_window;
     WINDOW* ascii_legend_window;
@@ -19,17 +18,20 @@ class curses_mem_vis
     int highlighted_memory;
     size_t current_mem_ptr;
     size_t current_mem_size;
-    bool active;
 
 public:
     int width;
     int height;
 
+    curses_mem_vis()
+    {
+        title = "[Memory]";
+    }
+
     void init(WINDOW* parent, const int y, const int x, const int rows)
     {
         height = rows + 4;
         width = 82;
-        active = false;
         auto cols = 16;
 
         // sl = side legend
@@ -46,12 +48,12 @@ public:
         const auto tla_x = sl_width + tlh_width + 10;
         const auto mem_ascii_y = tlh_height + 1;
 
-        memory_window = derwin(parent, height, width, y, x);
-        side_legend_window = derwin(memory_window, sl_height, sl_width, 3, 2);
-        top_legend_window = derwin(memory_window, tlh_height, tlh_width, 1, sl_width + 4);
-        mem_hex_window = derwin(memory_window, sl_height, tlh_width + 1, mem_ascii_y, sl_width + 4);
-        mem_ascii_window = derwin(memory_window, sl_height, ascii_width, mem_ascii_y, tla_x);
-        ascii_legend_window = derwin(memory_window, tlh_height, ascii_width, 1, tla_x);
+        main_win = derwin(parent, height, width, y, x);
+        side_legend_window = derwin(main_win, sl_height, sl_width, 3, 2);
+        top_legend_window = derwin(main_win, tlh_height, tlh_width, 1, sl_width + 4);
+        mem_hex_window = derwin(main_win, sl_height, tlh_width + 1, mem_ascii_y, sl_width + 4);
+        mem_ascii_window = derwin(main_win, sl_height, ascii_width, mem_ascii_y, tla_x);
+        ascii_legend_window = derwin(main_win, tlh_height, ascii_width, 1, tla_x);
         refresh();
 
         box(side_legend_window, 0, 0);
@@ -83,22 +85,6 @@ public:
         wprintw(top_legend_window, " ");
 
         draw_border();
-    }
-
-    void draw_border()
-    {
-        if(active)
-        {
-            wattrset(memory_window, COLOR_PAIR(2));
-        }
-        box(memory_window, 0, 0);
-        mvwprintw(memory_window, 0, 10, "[Memory]");
-        mvwchgat(memory_window, 0, 11, 1, A_BOLD, 2, nullptr);
-        if (active)
-        {
-            wattrset(memory_window, COLOR_PAIR(0));
-        }
-        wrefresh(memory_window);
     }
 
     point get_hex_pt(const int mem_ptr)
@@ -162,14 +148,9 @@ public:
         mvwchgat(mem_ascii_window, ascii_pt.y, ascii_pt.x, 1, attr, color, nullptr);
     }
 
-    void toggle_active()
+    void set_active(bool a) override
     {
-        set_active(!active);
-    }
-
-    void set_active(bool a)
-    {
-        active = a;
+        window_base::set_active(a);
         if(a)
         {
             highlight_memory_cell(highlighted_memory);
@@ -178,7 +159,8 @@ public:
         {
             remove_memory_highlight();
         }
-        draw_border();
+        wrefresh(mem_hex_window);
+        wrefresh(mem_ascii_window);
     }
 
     void right()
