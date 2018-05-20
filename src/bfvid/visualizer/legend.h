@@ -32,10 +32,10 @@ class legend
     const int title_width = 25;
     const int item_width = 15;
 
-    void draw_items(const std::vector<legend_entry>& items, const int current_offs)
+    void draw_items(const std::vector<legend_entry>& items, const int current_offs) const
     {
         const auto offs = title_width + current_offs * item_width;
-        for (auto i = 0; i < items.size(); ++i)
+        for (size_t i = 0; i < items.size(); ++i)
         {
             auto& item = items[i];
             wattrset(main_win, COLOR_PAIR(2) | A_REVERSE);
@@ -45,7 +45,7 @@ class legend
         }
     }
 
-    void draw_title(curses_vis_window active_win)
+    void draw_title(curses_vis_window active_win) const
     {
         wattrset(main_win, A_BOLD);
         mvwprintw(main_win, 0, 0, "Active window: ");
@@ -78,7 +78,7 @@ public:
         draw(curses_vis_window::none);
     }
 
-    void draw(const curses_vis_window active_win)
+    void draw(const curses_vis_window active_win) const
     {
         wclear(main_win);
 

@@ -87,7 +87,6 @@ public:
             case KEY_DOWN:
                 vis.down();
                 break;
-            
             }
         }
     }

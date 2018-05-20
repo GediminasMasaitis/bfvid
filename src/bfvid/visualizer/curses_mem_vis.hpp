@@ -141,7 +141,7 @@ public:
         current_mem_ptr = mem_ptr;
         wmove(mem_hex_window, 0, 0);
         wmove(mem_ascii_window, 0, 0);
-        for (auto i = 0; i < length; ++i)
+        for (size_t i = 0; i < length; ++i)
         {
             if (i % 8 == 0 && i % 16 != 0)
             {

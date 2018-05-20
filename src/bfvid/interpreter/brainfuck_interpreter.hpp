@@ -104,4 +104,14 @@ public:
         breakpoint_loop_set = false;
         return !this->is_end();
     }
+
+    bool run_to_end()
+    {
+        while (this->step())
+        {
+            
+        }
+        breakpoint_loop_set = false;
+        return false;
+    }
 };

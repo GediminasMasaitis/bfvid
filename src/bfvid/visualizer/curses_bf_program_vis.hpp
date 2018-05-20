@@ -87,7 +87,7 @@ public:
         highlight_limit = program.size();
         current_instr_ptr = instr_ptr;
         wmove(code_window, 0, 0);
-        for(auto i = 0; i < program.size(); ++i)
+        for(size_t i = 0; i < program.size(); ++i)
         {
             const auto ch = program[i];
             wprintw(code_window, "%c", ch);

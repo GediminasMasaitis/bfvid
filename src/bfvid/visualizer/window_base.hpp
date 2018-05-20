@@ -64,7 +64,7 @@ protected:
     virtual void set_highlight_core(const int ptr) = 0;
     virtual void remove_highlight() = 0;
 
-    void set_highlight(const int ptr)
+    void set_highlight(const size_t ptr)
     {
         if (!active)
         {
