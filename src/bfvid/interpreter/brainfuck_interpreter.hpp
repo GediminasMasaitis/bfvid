@@ -7,11 +7,11 @@ template<typename TData = int8_t, size_t VMemSize = 256>
 class brainfuck_interpreter : public brainfuck_interpreter_core<TData, VMemSize>
 {
 public:
-
     breakpoint_mem_map breakpoints_mem;
     breakpoint_instr_map breakpoints_instr;
     bool breakpoint_loop_set;
     size_t breakpoint_loop;
+    std::chrono::milliseconds delay;
 
     brainfuck_interpreter(const std::string& program_str, std::ostream* const out = nullptr, std::istream* const in = nullptr) 
     : brainfuck_interpreter_core<TData, VMemSize>(program_str, out, in),
@@ -30,7 +30,7 @@ public:
         else
         {
             set_instr_break(ptr);
-        }
+        }        
     }
 
     void set_instr_break(const size_t ptr)
@@ -99,6 +99,10 @@ public:
             if(br_instr_it != breakpoints_instr.end())
             {
                 break;
+            }
+            if (delay > std::chrono::milliseconds(0))
+            {
+                std::this_thread::sleep_for(delay);
             }
         }
         breakpoint_loop_set = false;

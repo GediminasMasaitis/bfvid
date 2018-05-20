@@ -5,6 +5,7 @@
 #include "curses_output_visualizer.hpp"
 #include "curses_vis_window.h"
 #include "legend.h"
+#include "trackbar.h"
 
 class curses_visualizer
 {
@@ -12,6 +13,7 @@ class curses_visualizer
     curses_bf_program_vis prog_vis;
     curses_output_vis output_vis;
     legend leg;
+    trackbar delay_trackbar;
 
     curses_vis_window active_window;
 
@@ -51,7 +53,9 @@ public:
         mem_vis.init(stdscr, 0, 0, rows);
         prog_vis.init(stdscr, 0, mem_vis.width + 1, rows-4);
         output_vis.init(stdscr, mem_vis.height, 0);
-        leg.init(stdscr, mem_vis.height + output_vis.height, 0);
+        auto legend_y = mem_vis.height + output_vis.height;
+        leg.init(stdscr, legend_y, 0);
+        delay_trackbar.init(stdscr, legend_y, leg.width, 1, 1);
         active_window = curses_vis_window::none;
     }
 
@@ -90,6 +94,11 @@ public:
         {
             output_vis.print_ch(out_ch);
         }
+    }
+
+    void set_delay(const int max, const int pos, const int value)
+    {
+        delay_trackbar.draw(max, pos, value);
     }
 
     void left()

@@ -8,10 +8,14 @@ class runner
 private:
     brainfuck_interpreter<>& bf;
     curses_visualizer& vis;
+
+    std::vector<int> delays{ 0,1,2,5,10,15,20,25,30,35,50,75,100,150,200,250,300,350,500,750,1000,1500,2000,3000 };
+    int delay_idx;
+
 public:
     runner(brainfuck_interpreter<>& bf, curses_visualizer& vis) : bf(bf), vis(vis)
     {
-        
+        delay_idx = 0;
     }
 
     void run(std::string program)
@@ -22,7 +26,8 @@ public:
             vis.visualize(bf.program, bf.memory.data(), bf.mem_size, bf.breakpoints_mem, bf.breakpoints_instr, bf.mem_ptr, bf.instr_ptr, bf.instr_steps, in_ch, out_ch);
             //std::this_thread::sleep_for(std::chrono::milliseconds(10));
         };
-        
+        const auto idx = 4;
+        vis.set_delay(delays.size(), idx, delays[idx]);
         input_loop();
     }
 
@@ -87,6 +92,31 @@ public:
             case KEY_DOWN:
                 vis.down();
                 break;
+
+            case KEY_HOME:
+            {
+                if (delay_idx == 0)
+                {
+                    break;
+                }
+                --delay_idx;
+                auto delay = delays[delay_idx];
+                vis.set_delay(delays.size(), delay_idx, delay);
+                bf.delay = std::chrono::milliseconds(delay);
+                break;
+            }
+            case KEY_END:
+            {
+                if (delay_idx == delays.size() - 1)
+                {
+                    break;
+                }
+                ++delay_idx;
+                auto delay = delays[delay_idx];
+                vis.set_delay(delays.size(), delay_idx, delay);
+                bf.delay = std::chrono::milliseconds(delay);
+                break;
+            }
             }
         }
     }

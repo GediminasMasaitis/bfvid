@@ -16,6 +16,7 @@ class legend
     };
 
     WINDOW* main_win;
+
     std::vector<legend_entry> common_items
     {
         legend_entry("F5 ", "Run program"),
@@ -70,11 +71,14 @@ class legend
     }
 
 public:
+
+    const int height = 1;
+    const int width = 110;
+
     void init(WINDOW* parent, int y, int x)
     {
-        main_win = derwin(parent, 1, 150, y, x);
+        main_win = derwin(parent, height, width, y, x);
         //box(main_win, 0, 0);
-        //wrefresh(main_win);
         draw(curses_vis_window::none);
     }
 
