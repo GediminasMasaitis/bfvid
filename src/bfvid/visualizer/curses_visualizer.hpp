@@ -4,12 +4,14 @@
 #include "curses_bf_program_vis.hpp"
 #include "curses_output_visualizer.hpp"
 #include "curses_vis_window.h"
+#include "legend.h"
 
 class curses_visualizer
 {
     curses_mem_vis mem_vis;
     curses_bf_program_vis prog_vis;
     curses_output_vis output_vis;
+    legend leg;
 
     curses_vis_window active_window;
 
@@ -42,13 +44,14 @@ public:
         init_pair(3, COLOR_RED, COLOR_BLACK);
         keypad(stdscr, true);
 
-        auto rows = 32;
+        auto rows = 16;
 
-        printw("bfvid by Gediminas Masaitis");
+        //printw("bfvid by Gediminas Masaitis");
 
-        mem_vis.init(stdscr, 2, 0, rows);
-        prog_vis.init(stdscr, 2, mem_vis.width + 1);
-        output_vis.init(stdscr, mem_vis.height + 2, 0);
+        mem_vis.init(stdscr, 0, 0, rows);
+        prog_vis.init(stdscr, 0, mem_vis.width + 1, rows-4);
+        output_vis.init(stdscr, mem_vis.height, 0);
+        leg.init(stdscr, mem_vis.height + output_vis.height, 0);
         active_window = curses_vis_window::none;
     }
 
@@ -125,6 +128,7 @@ public:
             active_window = window;
         }
         toggle_active_core(window);
+        leg.draw(active_window);
     }
 
     ~curses_visualizer()

@@ -5,7 +5,7 @@ class curses_output_vis : public window_base
     WINDOW* content_window;
 
 public:
-    const int height = 10;
+    const int height = 9;
     const int width = 150;
 
     curses_output_vis()

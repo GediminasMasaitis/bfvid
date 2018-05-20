@@ -3,6 +3,7 @@
 
 class curses_bf_program_vis : public highlight_window
 {
+    WINDOW* code_box_window = nullptr;
     WINDOW* code_window = nullptr;
     WINDOW* info_window = nullptr;
 
@@ -11,9 +12,9 @@ class curses_bf_program_vis : public highlight_window
     breakpoint_instr_map current_map;
 
 public:
-    const int height = 36;
+    int height;
     const int width = 67;
-    const int code_width = 65;
+    const int code_width = 63;
 
     curses_bf_program_vis()
     {
@@ -21,17 +22,19 @@ public:
         highlight_width = code_width;
     }
 
-    void init(WINDOW* parent, const int y, const int x)
+    void init(WINDOW* parent, const int y, const int x, const int rows)
     {
-        const auto code_height = 24;
-        const auto info_y = code_height + 1;
-        const auto info_height = 10;
+        height = rows+8;
+        const auto code_height = rows;
+        const auto info_y = code_height + 3;
+        const auto info_height = height - code_height - 4;
 
         main_win = derwin(parent, height, width, y, x);
-        code_window = derwin(main_win, code_height, code_width, 1, 1);
-        info_window = derwin(main_win, info_height, code_width, info_y, 1);
+        code_box_window = derwin(main_win, code_height+2, code_width+2, 1, 1);
+        code_window = derwin(code_box_window, code_height, code_width, 1, 1);
+        info_window = derwin(main_win, info_height, code_width+2, info_y, 1);
 
-        //box(code_window, 0, 0);
+        box(code_box_window, 0, 0);
         //box(info_window, 0, 0);
 
         mvwprintw(info_window, 0, 0, executed_str.c_str());
@@ -93,7 +96,7 @@ public:
         if(instr_ptr == program.size())
         {
             wattron(info_window, COLOR_PAIR(1));
-            mvwprintw(info_window, 2, 0, "Done!");
+            mvwprintw(info_window, 3, 0, "Done!");
             wattroff(info_window, COLOR_PAIR(1));
             wrefresh(info_window);
         }

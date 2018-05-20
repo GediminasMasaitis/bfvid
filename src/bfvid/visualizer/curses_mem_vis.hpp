@@ -112,7 +112,7 @@ public:
 
     void remove_highlight() override
     {
-        set_attr(highlight, A_NORMAL);
+        set_attr(highlight, highlight == current_mem_ptr ? A_BOLD : A_NORMAL);
     }
 
     void set_highlight_core(const int ptr) override
@@ -150,8 +150,8 @@ public:
             }
             if (i == mem_ptr)
             {
-                wattrset(mem_hex_window, COLOR_PAIR(1));
-                wattrset(mem_ascii_window, COLOR_PAIR(1));
+                wattrset(mem_hex_window, COLOR_PAIR(1) | A_BOLD);
+                wattrset(mem_ascii_window, COLOR_PAIR(1) | A_BOLD);
             }
             auto ch = static_cast<uint8_t>(data[i]);
             wprintw(mem_hex_window, "%02X", ch);
