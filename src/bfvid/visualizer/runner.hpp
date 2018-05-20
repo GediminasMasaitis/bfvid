@@ -59,6 +59,10 @@ public:
                 bf.run();
                 break;
 
+            case KEY_F(6):
+                bf.reset();
+                break;
+
             case KEY_F(10):
                 bf.step_over();
                 break;

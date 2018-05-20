@@ -155,4 +155,14 @@ public:
 
         return true;
     }
+
+    void reset()
+    {
+        all_steps = 0;
+        instr_steps = 0;
+        memory = {};
+        mem_ptr = 0;
+        instr_ptr = 0;
+        loop_stack = {};
+    }
 };
