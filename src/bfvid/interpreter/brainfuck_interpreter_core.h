@@ -27,7 +27,8 @@ public:
     int instr_steps;
 
     memory_t memory;
-    size_t mem_ptr;
+    int32_t mem_ptr;
+	size_t fixed_mem_ptr;
     size_t instr_ptr;
 
     std::stack<size_t> loop_stack;
@@ -63,7 +64,8 @@ public:
         all_steps(0),
         instr_steps(0),
         memory{},
-        mem_ptr(0),
+		mem_ptr(0),
+		fixed_mem_ptr(0),
         instr_ptr(0),
         step_callback(nullptr)
     {
@@ -78,6 +80,16 @@ public:
     char get_next_instruction() const
     {
         return program[instr_ptr];
+    }
+
+	size_t fix_mem_ptr(int32_t mem_ptr)
+    {
+	    if(mem_ptr >= 0)
+	    {
+			return mem_ptr;
+	    }
+
+		return mem_size + mem_ptr;
     }
 
     bool step()
@@ -95,20 +107,22 @@ public:
         {
         case '>':
             ++mem_ptr;
+			fixed_mem_ptr = fix_mem_ptr(mem_ptr);
             break;
         case '<':
             --mem_ptr;
+			fixed_mem_ptr = fix_mem_ptr(mem_ptr);
             break;
         case '+':
-            ++memory[mem_ptr];
+            ++memory[fixed_mem_ptr];
             break;
         case '-':
-            --memory[mem_ptr];
+            --memory[fixed_mem_ptr];
             break;
         case '.':
             if (out)
             {
-                out_ch = memory[mem_ptr];
+                out_ch = memory[fixed_mem_ptr];
                 *out << static_cast<char>(out_ch);
             }
             break;
@@ -118,10 +132,10 @@ public:
                 throw std::runtime_error("No input stream provided, unable to read data.");
             }
             *in >> in_ch;
-            memory[mem_ptr] = in_ch;
+            memory[fixed_mem_ptr] = in_ch;
             break;
         case '[':
-            if (memory[mem_ptr])
+            if (memory[fixed_mem_ptr])
             {
                 loop_stack.push(instr_ptr);
             }
@@ -131,11 +145,15 @@ public:
             }
             break;
         case ']':
-            if (memory[mem_ptr])
+        	if (memory[fixed_mem_ptr])
             {
                 const auto jmp_back_pos = loop_stack.top();
                 instr_ptr = jmp_back_pos;
             }
+			else
+			{
+				loop_stack.pop();
+			}
             break;
         default:
             executed = false;
@@ -161,7 +179,8 @@ public:
         all_steps = 0;
         instr_steps = 0;
         memory = {};
-        mem_ptr = 0;
+		mem_ptr = 0;
+		fixed_mem_ptr = 0;
         instr_ptr = 0;
         loop_stack = {};
     }

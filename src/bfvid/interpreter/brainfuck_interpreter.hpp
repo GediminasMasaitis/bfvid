@@ -18,7 +18,15 @@ public:
       breakpoint_loop_set(false),
       breakpoint_loop(0)
     {
-        
+		size_t m_ptr = 0;
+        for(auto ch : program_str)
+        {
+			if(ch == '#')
+			{
+				set_instr_break(m_ptr);
+			}
+			++m_ptr;
+        }
     }
 
     void toggle_instr_break(const size_t ptr)
