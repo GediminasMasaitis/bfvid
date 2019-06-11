@@ -82,7 +82,7 @@ public:
         return program[instr_ptr];
     }
 
-	size_t fix_mem_ptr(int32_t mem_ptr)
+	size_t fix_mem_ptr(const int32_t mem_ptr)
     {
 	    if(mem_ptr >= 0)
 	    {
